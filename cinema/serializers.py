@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from rest_framework.relations import PrimaryKeyRelatedField
 from rest_framework.validators import UniqueTogetherValidator
 
 from cinema.models import (
@@ -101,11 +102,14 @@ class MovieSessionDetailSerializer(MovieSessionSerializer):
 
 
 class TicketSerializer(serializers.ModelSerializer):
-    movie_session = MovieSessionListSerializer(read_only=True)
+    movie_session = MovieSessionListSerializer(read_only=True,)
+    movie_session_id = serializers.PrimaryKeyRelatedField(
+        queryset=MovieSession.objects.all(), write_only=True
+    )
 
     class Meta:
         model = Ticket
-        fields = ("id", "row", "seat", "movie_session",)
+        fields = ("id", "row", "seat", "movie_session", "movie_session_id")
         validators = [
             UniqueTogetherValidator(
                 queryset=Ticket.objects.all(),
