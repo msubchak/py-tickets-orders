@@ -2,6 +2,7 @@ from django.db import transaction
 from django.db.models import Count, F
 from rest_framework import viewsets
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.permissions import IsAuthenticated
 
 from cinema.models import (
     Genre,
@@ -56,10 +57,10 @@ class MovieViewSet(viewsets.ModelViewSet):
         if genres:
             genres = self._params_to_ints(genres)
             queryset = queryset.filter(genres__id__in=genres)
-        elif actors:
+        if actors:
             actors = self._params_to_ints(actors)
             queryset = queryset.filter(actors__id__in=actors)
-        elif title:
+        if title:
             queryset = queryset.filter(title__icontains=title)
         return queryset
 
@@ -117,6 +118,7 @@ class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
     serializer_class = OrderListSerializer
     pagination_class = SetPagination
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         return Order.objects.filter(user=self.request.user)
